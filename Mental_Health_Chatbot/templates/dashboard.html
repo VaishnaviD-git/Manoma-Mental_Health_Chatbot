@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard | Mental Health Chatbot</title>
+</head>
+<body>
+    <h2>Welcome, {{ username }}!</h2>    
+    <form action="{{ url_for('scheduler_dashboard') }}" method="get">
+        <button type="submit">Scheduler</button>
+    </form>
+    <form action="{{ url_for('routine_checker') }}" method="get">
+        <button type="submit">Routine Checker</button>
+    </form>
+    <form action="{{ url_for('habit_tracker') }}" method="get">
+        <button type="submit">Habit Tracker</button>
+    </form>
+    <form action="{{ url_for('chatbot') }}" method="get">
+        <button type="submit">Chatbot</button>
+    </form>
+    <br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduler Dashboard | Mental Health Chatbot</title>
+    <style>
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background: #f2f2f2;
+        }
+        .done {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Your Scheduled Tasks</h2>
+    <form action="{{ url_for('add_schedule') }}" method="get">
+    <button class="btn" type="submit">Add Schedule</button>
+    </form>
+    {% if schedules %}
+    <table>
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for schedule in schedules %}
+            <tr>
+                <td>{{ schedule['task'] }}</td>
+                <td>{{ schedule['date'] }}</td>
+                <td>{{ schedule['time'] }}</td>
+                <td>
+                    {% if schedule['status'] == 'done' %}
+                        <span class="done">Completed</span>
+                    {% else %}
+                        <form action="{{ url_for('update_scheduler', schedule_id=schedule['_id']) }}" method="POST">
+                            <input type="checkbox" name="status" value="done" onchange="this.form.submit()">
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align:center;">No schedules found.</p>
+    {% endif %}
+</body>
+</html>
