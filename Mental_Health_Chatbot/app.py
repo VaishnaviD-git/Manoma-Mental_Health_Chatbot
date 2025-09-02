@@ -1,17 +1,24 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash # type: ignore
-from flask_bcrypt import Bcrypt # type: ignore
-from pymongo import MongoClient # type: ignore
-from bson.objectid import ObjectId # type: ignore
+from flask import Flask, render_template, request, redirect, url_for, session, flash  # type: ignore
+from flask_bcrypt import Bcrypt  # type: ignore
+from pymongo import MongoClient  # type: ignore
+from bson.objectid import ObjectId  # type: ignore
+from datetime import datetime, date
+import os
+import secrets
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # change in production
+app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 bcrypt = Bcrypt(app)
 
-# MongoDB connection
+# MongoDB connection using MongoClient
 client = MongoClient("mongodb://localhost:27017/")  # local DB
 db = client["Mental_Health_Assist"]   # Database
-users = db["Users"]               # Collection for users
+
+# Collections
+users = db["Users"]               
 schedules_collection = db["Scheduler"]
+habits_collection = db["Habits"]
+habit_logs = db["HabitLogs"]
 
 @app.route("/")
 def home():
@@ -103,11 +110,72 @@ def routine_checker():
         return render_template("dashboard.html",username=session["username"])
     return redirect(url_for("login"))
 
-@app.route("/habit_tracker")
-def habit_tracker():
-    if "username" in session:
-        return render_template("dashboard.html",username=session["username"])
-    return redirect(url_for("login"))
+@app.route("/habits")
+def habit_dashboard():
+    habits = list(habits_collection.find())
+    return render_template("habit_dashboard.html", habits=habits)
+
+@app.route("/add_habit", methods=["GET", "POST"])
+def add_habit():
+    if request.method == "POST":
+        habit_name = request.form.get("habit")
+        if habit_name:
+            habits_collection.insert_one({
+                "habit": habit_name,
+                "streak": 0,
+                "temp_checked": False,
+                "last_updated": datetime.now().strftime("%Y-%m-%d")
+            })
+        return redirect(url_for("habit_dashboard"))
+    return render_template("add_habit.html")
+
+@app.route("/update_habit/<habit_id>", methods=["POST"])
+def update_habit(habit_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    completed = "completed" in request.form  # checkbox status (True/False)
+
+    # Save only today's habit log
+    habit_logs.update_one(
+        {"user_id": user_id, "habit_id": ObjectId(habit_id), "date": str(date.today())},
+        {"$set": {"completed": completed}},
+        upsert=True
+    )
+    habits = list(habits_collection.find())
+    return render_template("habit_dashboard.html",habits=habits)
+
+@app.route("/delete_habit/<habit_id>", methods=["POST"])
+def delete_habit(habit_id):
+    habits_collection.delete_one({"_id": ObjectId(habit_id)})
+    return redirect(url_for("habit_dashboard"))
+
+def finalize_habits():
+    today = datetime.now().strftime("%Y-%m-%d")
+    habits = habits_collection.find()
+
+    for habit in habits:
+        last_date = habit.get("last_updated")
+        checked = habit.get("temp_checked", False)
+
+        if last_date != today:
+            # finalize yesterday’s habit
+            if checked:
+                habit_logs.update_one(
+                    {"_id": habit["_id"]},
+                    {"$set": {"streak": habit["streak"] + 1,
+                              "temp_checked": False,
+                              "last_updated": today}}
+                )
+            else:
+                # reset streak if not done
+                habit_logs.update_one(
+                    {"_id": habit["_id"]},
+                    {"$set": {"streak": 0,
+                              "temp_checked": False,
+                              "last_updated": today}}
+                )
 
 @app.route("/chatbot")
 def chatbot():

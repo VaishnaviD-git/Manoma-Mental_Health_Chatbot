@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            text-align: center;
+        }
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 70%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+        }
+        th {
+            background: #f4f4f4;
+        }
+        button {
+            padding: 6px 12px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #e60000;
+        }
+        .add-btn {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        .add-btn:hover {
+            background: #45a049;
+        }
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Habit Tracker</h2>
+
+    <a href="{{ url_for('add_habit') }}" class="add-btn">+ Add Habit</a>
+
+    <table>
+        <tr>
+            <th>Habit</th>
+            <th>Check</th>
+            <th>Streak</th>
+            <th>Action</th>
+        </tr>
+        {% for habit in habits %}
+        <tr>
+            <td>{{ habit.habit }}</td>
+
+            <!-- Checkbox (not finalized until midnight) -->
+            <td>
+                <form action="{{ url_for('update_habit', habit_id=habit._id) }}" method="POST">
+                    <input type="checkbox" name="checked" 
+                        {% if habit.temp_checked %}checked{% endif %}
+                        onchange="this.form.submit()">
+                </form>
+            </td>
+
+            <!-- Streak Count -->
+            <td>{{ habit.streak }}</td>
+
+            <!-- Delete Habit -->
+            <td>
+                <form action="{{ url_for('delete_habit', habit_id=habit._id) }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

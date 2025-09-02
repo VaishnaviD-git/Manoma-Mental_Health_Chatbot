@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Habit | Mental Health Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            text-align: center;
+        }
+        form {
+            width: 300px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .back {
+            display: block;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>Add a New Habit</h2>
+    <form action="{{ url_for('add_habit') }}" method="POST">
+        <label for="habit">Habit</label>
+        <input type="text" id="habit" name="habit" placeholder="Enter your habit" required>
+
+        <button type="submit">Add Habit</button>
+    </form>
+    <a class="back" href="{{ url_for('habit_dashboard') }}">⬅ Back to Habits</a>
+</body>
+</html>
