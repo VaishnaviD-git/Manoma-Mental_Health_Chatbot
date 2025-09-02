@@ -112,15 +112,24 @@ def routine_checker():
 
 @app.route("/habits")
 def habit_dashboard():
-    habits = list(habits_collection.find())
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    habits = list(habits_collection.find({"user_id": ObjectId(user_id)}))
     return render_template("habit_dashboard.html", habits=habits)
 
 @app.route("/add_habit", methods=["GET", "POST"])
 def add_habit():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         habit_name = request.form.get("habit")
         if habit_name:
             habits_collection.insert_one({
+                "user_id": ObjectId(user_id),   # link habit to user
                 "habit": habit_name,
                 "streak": 0,
                 "temp_checked": False,
@@ -135,20 +144,24 @@ def update_habit(habit_id):
     if not user_id:
         return redirect(url_for("login"))
 
-    completed = "completed" in request.form  # checkbox status (True/False)
+    completed = "completed" in request.form  
 
-    # Save only today's habit log
     habit_logs.update_one(
-        {"user_id": user_id, "habit_id": ObjectId(habit_id), "date": str(date.today())},
+        {"user_id": ObjectId(user_id), "habit_id": ObjectId(habit_id), "date": str(date.today())},
         {"$set": {"completed": completed}},
         upsert=True
     )
-    habits = list(habits_collection.find())
-    return render_template("habit_dashboard.html",habits=habits)
+
+    return redirect(url_for("habit_dashboard"))
+
 
 @app.route("/delete_habit/<habit_id>", methods=["POST"])
 def delete_habit(habit_id):
-    habits_collection.delete_one({"_id": ObjectId(habit_id)})
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    habits_collection.delete_one({"_id": ObjectId(habit_id), "user_id": ObjectId(user_id)})
     return redirect(url_for("habit_dashboard"))
 
 def finalize_habits():
@@ -159,23 +172,16 @@ def finalize_habits():
         last_date = habit.get("last_updated")
         checked = habit.get("temp_checked", False)
 
+        update_data = {"temp_checked": False, "last_updated": today}
+
         if last_date != today:
-            # finalize yesterday’s habit
             if checked:
-                habit_logs.update_one(
-                    {"_id": habit["_id"]},
-                    {"$set": {"streak": habit["streak"] + 1,
-                              "temp_checked": False,
-                              "last_updated": today}}
-                )
+                update_data["streak"] = habit["streak"] + 1
             else:
-                # reset streak if not done
-                habit_logs.update_one(
-                    {"_id": habit["_id"]},
-                    {"$set": {"streak": 0,
-                              "temp_checked": False,
-                              "last_updated": today}}
-                )
+                update_data["streak"] = 0
+
+            habits_collection.update_one({"_id": habit["_id"]}, {"$set": update_data})
+
 
 @app.route("/chatbot")
 def chatbot():
