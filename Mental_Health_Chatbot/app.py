@@ -53,6 +53,7 @@ def login():
 
         user = users.find_one({"username": username})
         if user and bcrypt.check_password_hash(user["password"], password):
+            session["user_id"] = str(user["_id"])
             session["username"] = username
             return render_template("dashboard.html",username=session["username"])
         else:
@@ -144,16 +145,15 @@ def update_habit(habit_id):
     if not user_id:
         return redirect(url_for("login"))
 
-    completed = "completed" in request.form  
+    completed = "completed" in request.form  # True if checkbox ticked
 
-    habit_logs.update_one(
-        {"user_id": ObjectId(user_id), "habit_id": ObjectId(habit_id), "date": str(date.today())},
-        {"$set": {"completed": completed}},
-        upsert=True
+    # Save checkbox state in habits_collection
+    habits_collection.update_one(
+        {"_id": ObjectId(habit_id), "user_id": ObjectId(user_id)},
+        {"$set": {"temp_checked": completed}}
     )
 
     return redirect(url_for("habit_dashboard"))
-
 
 @app.route("/delete_habit/<habit_id>", methods=["POST"])
 def delete_habit(habit_id):
@@ -172,7 +172,10 @@ def finalize_habits():
         last_date = habit.get("last_updated")
         checked = habit.get("temp_checked", False)
 
-        update_data = {"temp_checked": False, "last_updated": today}
+        update_data = {
+            "temp_checked": False,   # reset for new day
+            "last_updated": today
+        }
 
         if last_date != today:
             if checked:
@@ -181,7 +184,6 @@ def finalize_habits():
                 update_data["streak"] = 0
 
             habits_collection.update_one({"_id": habit["_id"]}, {"$set": update_data})
-
 
 @app.route("/chatbot")
 def chatbot():

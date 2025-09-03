@@ -22,11 +22,10 @@
             <div class="habit-card">
                 <form action="{{ url_for('update_habit', habit_id=habit['_id']) }}" method="POST">
                     <input type="checkbox" name="completed" 
-                        onchange="this.form.submit()" 
-                        {% if habit.temp_checked %}checked{% endif %}>
+                    onchange="this.form.submit()"
+                    {% if habit.temp_checked %}checked{% endif %}>
                     {{ habit.habit }} (Streak: {{ habit.streak }})
                 </form>
-
                 <form action="{{ url_for('delete_habit', habit_id=habit['_id']) }}" method="POST" style="margin-left:10px;">
                     <button type="submit">Delete</button>
                 </form>
