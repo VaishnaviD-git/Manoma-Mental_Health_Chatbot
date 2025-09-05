@@ -19,6 +19,7 @@ users = db["Users"]
 schedules_collection = db["Scheduler"]
 habits_collection = db["Habits"]
 habit_logs = db["HabitLogs"]
+routine_tasks = db["routine_tasks"]
 
 @app.route("/")
 def home():
@@ -105,11 +106,69 @@ def add_schedule():
     return render_template("add_schedule.html")
 
 
-@app.route("/routine_checker")
-def routine_checker():
-    if "username" in session:
-        return render_template("dashboard.html",username=session["username"])
-    return redirect(url_for("login"))
+@app.route("/routine")
+def routine_dashboard():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    tasks = list(routine_tasks.find({"user_id": ObjectId(user_id)}))
+
+    all_done = all(task["completed"] for task in tasks) if tasks else False
+
+    return render_template("routine_dashboard.html", tasks=tasks, all_done=all_done)
+
+@app.route("/add_task", methods=["GET", "POST"])
+def add_task():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        routine_tasks.insert_one({
+            "user_id": ObjectId(user_id),
+            "task": request.form.get("task"),
+            "time": request.form.get("time"),   
+            "completed": False,
+            "last_updated": datetime.now().strftime("%Y-%m-%d")
+        })
+        return redirect(url_for("routine_dashboard"))
+
+    return render_template("add_task.html")
+
+
+@app.route("/update_task/<task_id>", methods=["POST"])
+def update_task(task_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    completed = "completed" in request.form
+    routine_tasks.update_one(
+        {"_id": ObjectId(task_id), "user_id": ObjectId(user_id)},
+        {"$set": {"completed": completed}}
+    )
+    return redirect(url_for("routine_dashboard"))
+
+def reset_task_status():
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    routine_tasks.update_many(
+        {"last_updated": {"$lt": today}},  # if not updated today
+        {"$set": {"completed": False, "last_updated": today}}
+    )
+
+@app.route("/delete_task/<task_id>", methods=["POST"])
+def delete_task(task_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    routine_tasks.delete_one({
+        "_id": ObjectId(task_id),
+        "user_id": ObjectId(user_id)  # ✅ ensures user can only delete their own tasks
+    })
+    return redirect(url_for("routine_dashboard"))
 
 @app.route("/habits")
 def habit_dashboard():
