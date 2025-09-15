@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mental Health Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    #chat { border: 1px solid #ccc; padding: 1rem; height: 400px; overflow-y: auto; }
+    .user { color: blue; }
+    .bot { color: green; }
+  </style>
+</head>
+<body>
+  <h2>Mental Health Chatbot (LLaMA 3.2 via Ollama)</h2>
+  <div id="chat"></div>
+  <input id="msg" type="text" placeholder="Type your message..." style="width:70%">
+  <button id="send">Send</button>
+
+<script>
+const session_id = "sess_" + Math.random().toString(36).slice(2,9);
+
+document.getElementById("send").onclick = async () => {
+  const msg = document.getElementById("msg").value;
+  if (!msg) return;
+  append("You: " + msg, "user");
+  document.getElementById("msg").value = "";
+
+  const res = await fetch("/chat", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({session_id: session_id, message: msg})
+  });
+  const data = await res.json();
+  append("Bot: " + data.reply, "bot");
+  if (data.tag === "suicidal") {
+    alert("If you're in immediate danger, please call local emergency services.");
+  }
+};
+
+function append(text, cls) {
+  const div = document.getElementById("chat");
+  const p = document.createElement("p");
+  p.textContent = text;
+  p.className = cls;
+  div.appendChild(p);
+  div.scrollTop = div.scrollHeight;
+}
+</script>
+</body>
+</html>
