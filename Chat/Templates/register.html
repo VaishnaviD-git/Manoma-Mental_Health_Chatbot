@@ -1,22 +1,158 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Register | Mental Health Chatbot</title>
+  <title>Register | Mental Health Chatbot</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #f1ccd9, #dbefef);
+    }
+
+   
+    .bubbles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float 10s infinite ease-in-out;
+    }
+
+    .bubble:nth-child(1) {
+      width: 160px; height: 160px;
+      background: #a3d5ff;
+      top: 20%; left: 15%;
+      animation-duration: 8s;
+    }
+    .bubble:nth-child(2) {
+      width: 200px; height: 200px;
+      background: #ffc8dd;
+      top: 60%; left: 70%;
+      animation-duration: 10s;
+    }
+    .bubble:nth-child(3) {
+      width: 130px; height: 130px;
+      background: #addfa3;
+      top: 80%; left: 30%;
+      animation-duration: 9s;
+    }
+    .bubble:nth-child(4) {
+      width: 220px; height: 220px;
+      background: #d0c570;
+      top: 35%; left: 80%;
+      animation-duration: 11s;
+    }
+    .bubble:nth-child(5) {
+      width: 150px; height: 150px;
+      background: #9f96d7;
+      top: 10%; left: 50%;
+      animation-duration: 7s;
+    }
+
+    .bubble:nth-child(6) {
+      width: 180px; height: 180px;
+      background: #dfa5da;
+      top: 45%; left: 5%;
+      animation-duration: 6s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-60px) scale(1.1); }
+    }
+
+    /* Register Card */
+    .register-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 2rem 3rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      z-index: 1;
+      text-align: center;
+    }
+
+    .register-card h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-style: italic;
+    }
+
+    .register-card input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: #f0f0f0;
+      font-size: 16px;
+    }
+
+    .register-card button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .register-card button:hover {
+      transform: scale(1.05);
+    }
+
+    .register-card p {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h2>Register</h2>
+  
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <!-- Register Card -->
+  <div class="register-card">
+    <h2>Create Account</h2>
     <form method="POST">
-        <label>Username:</label>
-        <input type="text" name="username" required><br><br>
-
-        <label>Password:</label>
-        <input type="password" name="password" required><br><br>
-
-        <button type="submit">Register</button>
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Register</button>
     </form>
     {% if error %}
-        <div class="error">{{ error }}</div>
+      <div class="error">{{ error }}</div>
     {% endif %}
     <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+  </div>
 </body>
 </html>
