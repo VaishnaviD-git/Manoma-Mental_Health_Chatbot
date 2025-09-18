@@ -4,17 +4,134 @@
   <meta charset="utf-8">
   <title>Mental Health Chatbot</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    #chat { border: 1px solid #ccc; padding: 1rem; height: 400px; overflow-y: auto; }
-    .user { color: blue; }
-    .bot { color: green; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #fef6f9, #f3f9f9);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bubbles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0; left: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float 10s infinite ease-in-out;
+    }
+    .bubble:nth-child(1) { width: 160px; height: 160px; background: #a3d5ff; top: 20%; left: 15%; animation-duration: 7s; }
+    .bubble:nth-child(2) { width: 200px; height: 200px; background: #ffc8dd; top: 60%; left: 70%; animation-duration: 5s; }
+    .bubble:nth-child(3) { width: 130px; height: 130px; background: #caffbf; top: 80%; left: 30%; animation-duration: 6s; }
+    .bubble:nth-child(4) { width: 220px; height: 220px; background: #fdffb6; top: 35%; left: 80%; animation-duration: 4s; }
+    .bubble:nth-child(5) { width: 150px; height: 150px; background: #bdb2ff; top: 10%; left: 50%; animation-duration: 5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-60px) scale(1.1); }
+    }
+
+    
+    #chat {
+      width: 80%;
+      max-width: 600px;
+      height: 400px;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      padding: 1rem;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      z-index: 1;
+    }
+
+    
+    .message {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      margin: 8px 0;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .user {
+      background: #a3d5ff;
+      align-self: flex-end;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+    .bot {
+      background: #caffbf;
+      align-self: flex-start;
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    
+    .input-area {
+      width: 80%;
+      max-width: 600px;
+      display: flex;
+      gap: 10px;
+      z-index: 1;
+    }
+    #msg {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(5px);
+      outline: none;
+    }
+    #send {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.2s ease;
+    }
+    #send:hover {
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
-  <h2>Mental Health Chatbot (LLaMA 3.2 via Ollama)</h2>
+
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <h2 style="z-index:1; margin-bottom: 1rem;">Manoma 🌸</h2>
   <div id="chat"></div>
-  <input id="msg" type="text" placeholder="Type your message..." style="width:70%">
-  <button id="send">Send</button>
+
+  <div class="input-area">
+    <input id="msg" type="text" placeholder="Type your message...">
+    <button id="send">Send</button>
+  </div>
 
 <script>
 const session_id = "sess_" + Math.random().toString(36).slice(2,9);
@@ -22,7 +139,7 @@ const session_id = "sess_" + Math.random().toString(36).slice(2,9);
 document.getElementById("send").onclick = async () => {
   const msg = document.getElementById("msg").value;
   if (!msg) return;
-  append("You: " + msg, "user");
+  append(msg, "user");
   document.getElementById("msg").value = "";
 
   const res = await fetch("/chat", {
@@ -31,18 +148,19 @@ document.getElementById("send").onclick = async () => {
     body: JSON.stringify({session_id: session_id, message: msg})
   });
   const data = await res.json();
-  append("Bot: " + data.reply, "bot");
+  append(data.reply, "bot");
+
   if (data.tag === "suicidal") {
-    alert("If you're in immediate danger, please call local emergency services.");
+    alert("⚠️ If you're in immediate danger, please call local emergency services.");
   }
 };
 
 function append(text, cls) {
   const div = document.getElementById("chat");
-  const p = document.createElement("p");
-  p.textContent = text;
-  p.className = cls;
-  div.appendChild(p);
+  const msgDiv = document.createElement("div");
+  msgDiv.textContent = text;
+  msgDiv.className = "message " + cls;
+  div.appendChild(msgDiv);
   div.scrollTop = div.scrollHeight;
 }
 </script>

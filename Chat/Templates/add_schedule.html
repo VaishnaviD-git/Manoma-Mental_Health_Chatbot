@@ -1,22 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Schedule | </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Schedule | Mental Health Chatbot</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #a3cdda, #9bcadf);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Bubble animation */
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: float linear infinite;
+    }
+
+    .bubble:nth-child(1) { width: 160px; height: 160px; background: #82aed1; top: 20%; left: 15%; animation-duration: 7s; }
+        .bubble:nth-child(2) { width: 200px; height: 200px; background: #d293ab; top: 60%; left: 70%; animation-duration: 11s; }
+        .bubble:nth-child(3) { width: 130px; height: 130px; background: #5ead4e; top: 80%; left: 30%; animation-duration: 12s; }
+        .bubble:nth-child(4) { width: 220px; height: 220px; background: #d4d67f; top: 35%; left: 80%; animation-duration: 10s; }
+        .bubble:nth-child(5) { width: 150px; height: 150px; background: #9f94d9; top: 10%; left: 50%; animation-duration: 9s; }
+        .bubble:nth-child(6) { width: 150px; height: 150px; background: #d285b5; top: 80%; left: 10%; animation-duration: 8s; }
+
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1);
+        opacity: 0.2;
+      }
+    }
+
+
+    .card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 320px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 2;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      text-align: left;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border: 2px solid #6dd5ed;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 18px;
+      background: #6dd5ed;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s ease;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #7cc7da;
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
-    <form action="{{ url_for('add_schedule') }}" method="POST" style="width:300px; margin:auto;">
-        <label for="task">Task:</label><br>
-        <input type="text" id="task" name="task" placeholder="Enter task" required><br><br>
+  <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+ 
+  <div class="card">
+    <h2>Add Schedule</h2>
+    <form action="{{ url_for('add_schedule') }}" method="POST">
+      <label for="task">Task:</label>
+      <input type="text" id="task" name="task" placeholder="Enter task" required>
 
-        <label for="date">Date:</label><br>
-        <input type="date" id="date" name="date" required><br><br>
+      <label for="date">Date:</label>
+      <input type="date" id="date" name="date" required>
 
-        <label for="time">Time:</label><br>
-        <input type="time" id="time" name="time" required><br><br>
+      <label for="time">Time:</label>
+      <input type="time" id="time" name="time" required>
 
-        <button type="submit">Done</button>
+      <button type="submit">Done</button>
     </form>
+  </div>
 </body>
 </html>

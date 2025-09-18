@@ -7,57 +7,116 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 30px;
-            text-align: center;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
         }
         form {
-            width: 300px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background: #f9f9f9;
+            width: 320px;
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.3); /* Transparent glass effect */
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out;
+        }
+        .bubble:nth-child(1) { width: 160px; height: 160px; background: #a3d5ff; top: 20%; left: 15%; animation-duration: 7s; }
+        .bubble:nth-child(2) { width: 200px; height: 200px; background: #ffc8dd; top: 60%; left: 70%; animation-duration: 5s; }
+        .bubble:nth-child(3) { width: 130px; height: 130px; background: #caffbf; top: 80%; left: 30%; animation-duration: 6s; }
+        .bubble:nth-child(4) { width: 220px; height: 220px; background: #fdffb6; top: 35%; left: 80%; animation-duration: 4s; }
+        .bubble:nth-child(5) { width: 150px; height: 150px; background: #bdb2ff; top: 10%; left: 50%; animation-duration: 5s; }
+        .bubble:nth-child(6) { width: 150px; height: 150px; background: #dc97c1; top: 80%; left: 10%; animation-duration: 3s; }
+
+        @keyframes float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-60px) scale(1.1); }
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
         }
         label {
             display: block;
             margin-top: 15px;
             font-weight: bold;
+            text-align: left;
+            color: #444;
         }
         input[type="text"] {
-            width: 90%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 5px;
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 8px;
             border: 1px solid #ccc;
+            outline: none;
+            transition: border 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #4CAF50;
         }
         button {
             margin-top: 20px;
-            padding: 10px 15px;
+            padding: 12px 18px;
             background: #4CAF50;
             color: white;
+            font-weight: bold;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
         }
         button:hover {
             background: #45a049;
+            transform: scale(1.05);
         }
         .back {
             display: block;
-            margin-top: 15px;
+            margin-top: 20px;
             text-decoration: none;
             color: #333;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        .back:hover {
+            color: #4CAF50;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
         }
     </style>
 </head>
 <body>
-    <h2>Add a New Habit</h2>
+
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
     <form action="{{ url_for('add_habit') }}" method="POST">
+        <h2>➕ Add a New Habit</h2>
         <label for="habit">Habit</label>
         <input type="text" id="habit" name="habit" placeholder="Enter your habit" required>
 
         <button type="submit">Add Habit</button>
+        <a class="back" href="{{ url_for('habit_dashboard') }}">⬅ Back to Habits</a>
     </form>
-    <a class="back" href="{{ url_for('habit_dashboard') }}">⬅ Back to Habits</a>
 </body>
 </html>
